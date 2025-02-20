@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: keep-stock
+  profiles:
+    active: default
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${DB-LOGIN}
+    password: ${DB-PASSWORD}
+    url: jdbc:postgresql://localhost:5433/stock-db
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: UTC
+#        jdbc:
+#          batch_size: 100000
+#          batch_versioned_data: true
+#          order_inserts: true
+#          order_updates: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+app:
+  scheduling:
+    mode: optimized
+    period: 6000000000
+    priceIncreasePercentage: 10.1
+
+
+logging:
+  level:
+    com.example: info
+    org:
+      springframework:
+        orm.jpa: error
+        transaction: error
+        transaction.interceptor: error
+        orm.jpa.JpaTransactionManager: error
+        web: info
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

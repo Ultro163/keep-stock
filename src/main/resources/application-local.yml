@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: keep-stock
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:stock-db
+    username: ${DB-LOGIN}
+    password: ${DB-PASSWORD}
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: UTC
+    database-platform: org.hibernate.dialect.H2Dialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false
+
+logging:
+  level:
+    com.example: info
+    org:
+      springframework:
+        orm.jpa: error
+        transaction: error
+        transaction.interceptor: error
+        orm.jpa.JpaTransactionManager: error
+        web: info
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

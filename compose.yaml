@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16.1
+    container_name: stock-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: stock-db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER" ]
+      timeout: 5s
+      interval: 5s
+      retries: 10
