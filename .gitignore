@@ -34,3 +34,4 @@ build/
 .vscode/
 /amplicode.xml
 /.env
+/result_updated_prices.log
