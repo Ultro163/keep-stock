@@ -1,12 +1,13 @@
 package com.example.keepstock.service;
 
 import com.example.keepstock.dto.mappers.ProductMapper;
-import com.example.keepstock.dto.product.FilterCriteriaDto;
 import com.example.keepstock.dto.product.ProductDto;
 import com.example.keepstock.dto.product.ProductFilterDto;
+import com.example.keepstock.dto.product.criteria.FilterCriteriaDto;
 import com.example.keepstock.error.exception.EntityNotFoundException;
 import com.example.keepstock.model.Product;
 import com.example.keepstock.repository.ProductRepository;
+import com.example.keepstock.service.search.ProductSpecification;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

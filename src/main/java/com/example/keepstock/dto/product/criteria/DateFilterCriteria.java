@@ -1,5 +1,7 @@
-package com.example.keepstock.dto.product;
+package com.example.keepstock.dto.product.criteria;
 
+import com.example.keepstock.service.search.strategy.OffsetDateTimePredicateStrategy;
+import com.example.keepstock.service.search.strategy.PredicateStrategy;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -19,6 +21,8 @@ public class DateFilterCriteria implements FilterCriteriaDto<OffsetDateTime> {
 
     private final FilterOperation operation;
 
+    private static final PredicateStrategy<OffsetDateTime> predicateStrategy = new OffsetDateTimePredicateStrategy();
+
     @JsonCreator
     public DateFilterCriteria(String field, String value, FilterOperation operation) {
         this.field = field;
@@ -32,5 +36,10 @@ public class DateFilterCriteria implements FilterCriteriaDto<OffsetDateTime> {
                 java.time.LocalDateTime.parse(value, formatter),
                 ZoneOffset.UTC
         );
+    }
+
+    @Override
+    public PredicateStrategy<OffsetDateTime> getPredicateStrategy() {
+        return predicateStrategy;
     }
 }

@@ -1,7 +1,6 @@
 package com.example.keepstock.controller;
 
 import com.example.keepstock.dto.mappers.ProductMapper;
-import com.example.keepstock.dto.product.FilterCriteriaDto;
 import com.example.keepstock.dto.product.NewProductDto;
 import com.example.keepstock.dto.product.NewProductRequest;
 import com.example.keepstock.dto.product.ProductDto;
@@ -9,6 +8,7 @@ import com.example.keepstock.dto.product.ProductFilterDto;
 import com.example.keepstock.dto.product.ProductResponseDto;
 import com.example.keepstock.dto.product.UpdateProductDto;
 import com.example.keepstock.dto.product.UpdateProductRequest;
+import com.example.keepstock.dto.product.criteria.FilterCriteriaDto;
 import com.example.keepstock.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
-package com.example.keepstock.dto.product;
+package com.example.keepstock.dto.product.criteria;
 
+import com.example.keepstock.service.search.strategy.PredicateStrategy;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,4 +21,6 @@ public interface FilterCriteriaDto<T> {
     T getValue();
 
     FilterOperation getOperation();
+
+    PredicateStrategy<T> getPredicateStrategy();
 }
