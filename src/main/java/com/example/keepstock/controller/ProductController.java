@@ -66,7 +66,7 @@ public class ProductController {
     }
 
     @GetMapping("/search/multiple")
-    public List<ProductResponseDto> findProductsByMultipleFilters(@RequestBody List<FilterCriteriaDto> filters,
+    public List<ProductResponseDto> findProductsByMultipleFilters(@RequestBody List<FilterCriteriaDto<?>> filters,
                                                                   Pageable pageable) {
 
         return productService.findProductsByMultipleFilters(filters, pageable).stream()

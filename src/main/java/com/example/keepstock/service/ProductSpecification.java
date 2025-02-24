@@ -3,7 +3,7 @@ package com.example.keepstock.service;
 import com.example.keepstock.dto.product.DateFilterCriteria;
 import com.example.keepstock.dto.product.FilterCriteriaDto;
 import com.example.keepstock.dto.product.FilterOperation;
-import com.example.keepstock.dto.product.NumberFilterCriteria;
+import com.example.keepstock.dto.product.BigDecimalFilterCriteria;
 import com.example.keepstock.dto.product.StringFilterCriteria;
 import com.example.keepstock.model.Product;
 import io.micrometer.common.lang.NonNull;
@@ -22,9 +22,9 @@ import java.util.List;
 @Component
 public class ProductSpecification implements Specification<Product> {
 
-    private final transient List<FilterCriteriaDto> filters;
+    private final transient List<FilterCriteriaDto<?>> filters;
 
-    public ProductSpecification(List<FilterCriteriaDto> filters) {
+    public ProductSpecification(List<FilterCriteriaDto<?>> filters) {
         this.filters = filters;
     }
 
@@ -34,7 +34,7 @@ public class ProductSpecification implements Specification<Product> {
                                  @NonNull CriteriaBuilder criteriaBuilder) {
         Predicate predicate = criteriaBuilder.conjunction();
 
-        for (FilterCriteriaDto filter : filters) {
+        for (FilterCriteriaDto<?> filter : filters) {
             predicate = criteriaBuilder.and(predicate, createPredicate(filter, root, criteriaBuilder));
         }
 
@@ -42,7 +42,7 @@ public class ProductSpecification implements Specification<Product> {
     }
 
     @SuppressWarnings("unchecked")
-    private static Predicate createPredicate(FilterCriteriaDto filter,
+    private static Predicate createPredicate(FilterCriteriaDto<?> filter,
                                              Root<Product> root,
                                              CriteriaBuilder criteriaBuilder) {
         Path<?> path = root.get(filter.getField());
@@ -54,7 +54,7 @@ public class ProductSpecification implements Specification<Product> {
             case DateFilterCriteria dateFilter ->
                     handleDateFilter(dateFilter.getOperation(), (Path<OffsetDateTime>) path,
                             criteriaBuilder, dateFilter.getValue());
-            case NumberFilterCriteria numberFilter ->
+            case BigDecimalFilterCriteria numberFilter ->
                     handleNumberFilter(numberFilter.getOperation(), (Path<Number>) path,
                             criteriaBuilder, numberFilter.getValue());
             default ->

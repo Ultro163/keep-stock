@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-@Getter
-public class StringFilterCriteria implements FilterCriteriaDto<String> {
+import java.math.BigDecimal;
 
+@Getter
+public class BigDecimalFilterCriteria implements FilterCriteriaDto<BigDecimal> {
     private final String field;
-    private final String value;
+    private final BigDecimal value;
     private final FilterOperation operation;
 
     @JsonCreator
-    public StringFilterCriteria(
+    public BigDecimalFilterCriteria(
             @JsonProperty("field") String field,
-            @JsonProperty("value") String value,
+            @JsonProperty("value") BigDecimal value,
             @JsonProperty("operation") FilterOperation operation) {
         this.field = field;
         this.value = value;

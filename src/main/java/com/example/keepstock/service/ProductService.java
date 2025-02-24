@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface ProductService extends CrudService<ProductDto, UUID> {
     List<ProductDto> findAllProductsByFilters(ProductFilterDto filter);
 
-    List<ProductDto> findProductsByMultipleFilters(List<FilterCriteriaDto> filters, Pageable pageable);
+    List<ProductDto> findProductsByMultipleFilters(List<FilterCriteriaDto<?>> filters, Pageable pageable);
 }

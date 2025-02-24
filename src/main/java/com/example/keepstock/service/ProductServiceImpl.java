@@ -96,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> findProductsByMultipleFilters(List<FilterCriteriaDto> filters, Pageable pageable) {
+    public List<ProductDto> findProductsByMultipleFilters(List<FilterCriteriaDto<?>> filters, Pageable pageable) {
         Specification<Product> spec = new ProductSpecification(filters);
         List<Product> products = productRepository.findAll(spec, pageable).getContent();
         return products.stream().map(productMapper::toProductDto).toList();
