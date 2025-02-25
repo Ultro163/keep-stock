@@ -1,6 +1,6 @@
 package com.example.keepstock.scheduling;
 
-import com.example.keepstock.model.Product;
+import com.example.keepstock.entity.Product;
 import com.example.keepstock.repository.ProductRepository;
 import com.example.keepstock.util.annotations.MeasureExecutionTime;
 import jakarta.persistence.EntityManager;
@@ -39,6 +39,7 @@ public class OptimizedProductPriceScheduler {
     private final ProductRepository productRepository;
 
     private static final String LOG_FILE_PATH = "result_updated_prices.log";
+    private static final String LOCK_QUERY = "LOCK TABLE products IN ACCESS EXCLUSIVE MODE";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -46,6 +47,8 @@ public class OptimizedProductPriceScheduler {
     private BigDecimal priceIncreasePercentage;
     @Value("${app.scheduling.batchSize:100000}")
     private int batchSize;
+    @Value("${app.scheduling.exclusiveLock}")
+    private boolean exclusiveLock;
 
     @MeasureExecutionTime
     @Transactional
@@ -60,6 +63,11 @@ public class OptimizedProductPriceScheduler {
 
         Session session = entityManager.unwrap(Session.class);
         session.setJdbcBatchSize(batchSize);
+        if (exclusiveLock) {
+            entityManager.createNativeQuery(LOCK_QUERY).executeUpdate();
+            log.info("🔒 Таблица products заблокирована на время обновления.");
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_PATH, true))) {
             AtomicInteger rowNumber = new AtomicInteger(1);
             do {

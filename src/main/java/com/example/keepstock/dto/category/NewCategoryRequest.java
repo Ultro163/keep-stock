@@ -1,5 +1,6 @@
 package com.example.keepstock.dto.category;
 
+import com.example.keepstock.entity.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for {@link com.example.keepstock.model.Category}
+ * DTO for {@link Category}
  */
 @Data
 @AllArgsConstructor

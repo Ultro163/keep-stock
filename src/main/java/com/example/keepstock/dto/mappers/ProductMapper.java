@@ -6,7 +6,7 @@ import com.example.keepstock.dto.product.ProductDto;
 import com.example.keepstock.dto.product.ProductResponseDto;
 import com.example.keepstock.dto.product.UpdateProductDto;
 import com.example.keepstock.dto.product.UpdateProductRequest;
-import com.example.keepstock.model.Product;
+import com.example.keepstock.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

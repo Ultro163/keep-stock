@@ -1,28 +1,24 @@
 package com.example.keepstock.dto.product;
 
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
-/**
- * DTO for {@link ProductDto}
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateProductRequest {
-    @Size(max = 55)
+public class ProductFilterDto {
     private String name;
-    @Size(max = 255)
-    private String description;
-    private UUID categoryId;
-    @PositiveOrZero
+    @Positive
     private BigDecimal price;
-    @PositiveOrZero
+    @Positive
     private Long quantity;
+    @PositiveOrZero
+    private int page = 0;
+    @Positive
+    private int size = 10;
 }

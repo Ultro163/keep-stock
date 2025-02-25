@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -25,5 +24,5 @@ public class NewProductDto {
     private BigDecimal price;
     private Long quantity;
     private OffsetDateTime lastQuantityUpdate;
-    private LocalDate createdAt;
+    private OffsetDateTime createdAt;
 }
