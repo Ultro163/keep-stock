@@ -1,5 +1,6 @@
 package com.example.keepstock.service;
 
+import com.example.keepstock.controller.CurrencyProvider;
 import com.example.keepstock.dto.mappers.ProductMapper;
 import com.example.keepstock.dto.product.ProductDto;
 import com.example.keepstock.dto.product.ProductFilterDto;
@@ -16,6 +17,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,8 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final CurrencyProvider currencyProvider;
+    private final CurrencyService currencyServiceImpl;
 
     @Override
     public ProductDto save(ProductDto entity) {
@@ -70,8 +75,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getById(UUID id) {
+        BigDecimal exchangeRate = currencyServiceImpl.getActualRate(currencyProvider.getCurrency());
         Product product = productRepository.findById(id).orElseThrow(() -> productNotFound(id));
-        return productMapper.toProductDto(product);
+        ProductDto dto = productMapper.toProductDto(product);
+        dto.setCurrency(currencyProvider.getCurrency());
+        dto.setPrice(product.getPrice().divide(exchangeRate, 2, RoundingMode.HALF_UP));
+        return dto;
     }
 
     @Override
