@@ -28,9 +28,10 @@ spring:
 
 app:
   scheduling:
-    mode: optimized
+    mode: none
     period: 6000000000
     priceIncreasePercentage: 10.1
+    exclusiveLock: true
 
 
 logging:
