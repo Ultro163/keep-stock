@@ -2,6 +2,7 @@ package com.example.keepstock.dto.product.criteria;
 
 import com.example.keepstock.service.search.strategy.OffsetDateTimePredicateStrategy;
 import com.example.keepstock.service.search.strategy.PredicateStrategy;
+import com.example.keepstock.util.Constants;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class DateFilterCriteria implements FilterCriteriaDto<OffsetDateTime> {
     private final String field;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private final OffsetDateTime value;
 
     private final FilterOperation operation;

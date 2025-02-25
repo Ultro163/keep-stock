@@ -2,8 +2,8 @@ package com.example.keepstock.service;
 
 import com.example.keepstock.dto.category.CategoryDto;
 import com.example.keepstock.dto.mappers.CategoryMapper;
+import com.example.keepstock.entity.Category;
 import com.example.keepstock.error.exception.EntityNotFoundException;
-import com.example.keepstock.model.Category;
 import com.example.keepstock.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

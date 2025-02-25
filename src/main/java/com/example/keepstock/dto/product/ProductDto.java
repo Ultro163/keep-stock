@@ -1,6 +1,8 @@
 package com.example.keepstock.dto.product;
 
 import com.example.keepstock.dto.category.CategoryDto;
+import com.example.keepstock.entity.Product;
+import com.example.keepstock.model.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +12,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
- * DTO for {@link com.example.keepstock.model.Product}
+ * DTO for {@link Product}
  */
 @Data
 @AllArgsConstructor
@@ -25,4 +27,5 @@ public class ProductDto {
     private Long quantity;
     private OffsetDateTime lastQuantityUpdate;
     private OffsetDateTime createdAt;
+    private Currency currency;
 }

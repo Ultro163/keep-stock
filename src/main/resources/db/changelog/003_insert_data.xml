@@ -25,7 +25,7 @@
                     '100000' || ROW_NUMBER() OVER ()::TEXT AS article,
                         'Description for Product_' || gs AS description,
                     (SELECT id FROM categories ORDER BY random() LIMIT 1) AS category_id,
-                    10 AS price,
+                    1000 AS price,
                     FLOOR(RANDOM() * 1000 + 1)::BIGINT AS quantity,
                     now() AS last_quantity_update,
                     now() AS created_at
