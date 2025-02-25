@@ -1,6 +1,6 @@
 package com.example.keepstock.config;
 
-import com.example.keepstock.controller.CurrencyProvider;
+import com.example.keepstock.common.CurrencyProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

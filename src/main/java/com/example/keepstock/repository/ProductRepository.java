@@ -1,6 +1,6 @@
 package com.example.keepstock.repository;
 
-import com.example.keepstock.model.Product;
+import com.example.keepstock.entity.Product;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

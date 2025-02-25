@@ -1,6 +1,6 @@
 package com.example.keepstock.scheduling;
 
-import com.example.keepstock.model.Product;
+import com.example.keepstock.entity.Product;
 import com.example.keepstock.repository.ProductRepository;
 import com.example.keepstock.util.annotations.MeasureExecutionTime;
 import lombok.RequiredArgsConstructor;

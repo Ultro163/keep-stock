@@ -6,7 +6,7 @@ import com.example.keepstock.dto.category.NewCategoryDto;
 import com.example.keepstock.dto.category.NewCategoryRequest;
 import com.example.keepstock.dto.category.UpdateCategoryDto;
 import com.example.keepstock.dto.category.UpdateCategoryRequest;
-import com.example.keepstock.model.Category;
+import com.example.keepstock.entity.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;

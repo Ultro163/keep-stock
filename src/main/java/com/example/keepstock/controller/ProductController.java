@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;

@@ -23,6 +23,16 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: false
 
+app:
+  exchange-rate-file:
+    path: src/main/resources/exchange-rate.json
+  exchange-rate:
+    host: http://localhost:9090
+    methods:
+      get-actual-rate: /api/v1/exchange-rates
+  currency-service:
+    model: mock
+
 logging:
   level:
     com.example: info

@@ -1,7 +1,7 @@
 package com.example.keepstock.service.search;
 
 import com.example.keepstock.dto.product.criteria.FilterCriteriaDto;
-import com.example.keepstock.model.Product;
+import com.example.keepstock.entity.Product;
 import com.example.keepstock.service.search.strategy.PredicateStrategy;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

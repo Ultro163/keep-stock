@@ -1,4 +1,4 @@
-package com.example.keepstock.model;
+package com.example.keepstock.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

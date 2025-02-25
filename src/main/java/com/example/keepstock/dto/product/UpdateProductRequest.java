@@ -1,6 +1,5 @@
 package com.example.keepstock.dto.product;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,10 +17,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UpdateProductRequest {
     @Size(max = 55)
-    @NotBlank
     private String name;
     @Size(max = 255)
-    @NotBlank
     private String description;
     private UUID categoryId;
     @PositiveOrZero
