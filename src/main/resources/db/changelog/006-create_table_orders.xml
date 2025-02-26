@@ -5,7 +5,7 @@
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="6" author="ultro163">
-        <createTable tableName="order">
+        <createTable tableName="orders">
             <column name="id" type="uuid">
                 <constraints primaryKey="true"/>
             </column>
@@ -20,9 +20,9 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="order"
+        <addForeignKeyConstraint baseTableName="orders"
                                  baseColumnNames="customer_id"
-                                 constraintName="fk_order_customer"
+                                 constraintName="fk_orders_customer"
                                  referencedTableName="customer"
                                  referencedColumnNames="id"/>
     </changeSet>

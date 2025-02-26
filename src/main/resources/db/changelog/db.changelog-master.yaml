@@ -10,6 +10,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/005_create_table_customer.xml
   - include:
-      file: db/changelog/006-create_table_order.xml
+      file: db/changelog/006-create_table_orders.xml
   - include:
       file: db/changelog/007_create_table_ordered_products.xml
+  - include:
+      file: db/changelog/008_insert_customer.xml

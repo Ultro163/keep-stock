@@ -69,5 +69,5 @@ public class Product {
 
     @NotNull
     @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable = false;
+    private Boolean isAvailable = true;
 }

@@ -4,10 +4,12 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
-
-    <changeSet id="5" author="ultro163">
+    <changeSet id="5.1" author="ultro163">
+        <createSequence sequenceName="customer_id_seq" startValue="1" incrementBy="1"/>
+    </changeSet>
+    <changeSet id="5.2" author="ultro163">
         <createTable tableName="customer">
-            <column name="id" type="bigserial">
+            <column name="id" type="bigint" defaultValueComputed="nextval('customer_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="login" type="varchar(55)">

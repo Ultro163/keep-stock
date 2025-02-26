@@ -2,6 +2,8 @@ package com.example.keepstock.dto.mappers;
 
 import com.example.keepstock.dto.product.NewProductDto;
 import com.example.keepstock.dto.product.NewProductRequest;
+import com.example.keepstock.dto.product.OrderProductRequest;
+import com.example.keepstock.dto.product.OrderProductResponse;
 import com.example.keepstock.dto.product.ProductDto;
 import com.example.keepstock.dto.product.ProductResponseDto;
 import com.example.keepstock.dto.product.UpdateProductDto;
@@ -30,4 +32,12 @@ public interface ProductMapper {
     ProductDto toProductDtoFromUpdateProductRequest(UpdateProductRequest updateProductRequest);
 
     ProductResponseDto toProductResponseDto(ProductDto productDto);
+
+    ProductDto toProductDtoFromOrderProductRequest(OrderProductRequest orderProductRequest);
+
+    OrderProductRequest toOrderProductDto(ProductDto productDto);
+
+    ProductDto toProductDtoFromOrderProductResponse(OrderProductResponse orderProductResponse);
+
+    OrderProductResponse toOrderProductResponse(ProductDto productDto);
 }

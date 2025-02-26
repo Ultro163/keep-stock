@@ -1,26 +1,24 @@
 package com.example.keepstock.dto.order;
 
-import com.example.keepstock.dto.customer.CustomerDto;
-import com.example.keepstock.dto.product.ProductDto;
+import com.example.keepstock.dto.product.OrderProductRequest;
 import com.example.keepstock.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * DTO for {@link com.example.keepstock.entity.Order}
+ * DTO for {@link OrderDto}
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDto {
+public class NewOrderDto {
     private UUID id;
-    private CustomerDto customer;
+    private Long customerId;
     private OrderStatus status;
     private String deliveryAddress;
-    private Set<ProductDto> products = new HashSet<>();
+    private Set<OrderProductRequest> products;
 }

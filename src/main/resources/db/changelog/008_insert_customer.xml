@@ -4,12 +4,11 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="4" author="ultro163">
-        <renameTable oldTableName="products" newTableName="product"/>
-        <addColumn tableName="product">
-            <column name="is_available" type="BOOLEAN" defaultValueBoolean="true">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
+    <changeSet id="8" author="ultro163">
+<insert tableName="customer">
+    <column name="login" value="admin"/>
+    <column name="email" value="admin@admin.ru"/>
+    <column name="is_active" value="true"/>
+</insert>
     </changeSet>
 </databaseChangeLog>

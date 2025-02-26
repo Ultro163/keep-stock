@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
-    @Around("execution(* com.example.keepstock.service.*ServiceImpl.*(..))")
+    @Around("execution(* com.example.keepstock.service.*.*ServiceImpl.*(..))")
     public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
         String operation = defineOperation(joinPoint.getSignature().getName());
         String serviceName = joinPoint.getTarget().getClass().getSimpleName();

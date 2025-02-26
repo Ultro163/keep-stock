@@ -15,7 +15,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +25,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,13 +37,11 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @Size(max = 25)
     @NotNull
-    @Column(name = "status", nullable = false, length = 25)
+    @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;
 
-    @Size(max = 255)
     @NotNull
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
