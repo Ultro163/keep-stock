@@ -23,7 +23,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "products")
+@Table(name = "product")
 @ToString
 public class Product {
     @Id
@@ -66,4 +66,8 @@ public class Product {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
+
+    @NotNull
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable = false;
 }

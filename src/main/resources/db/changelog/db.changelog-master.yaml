@@ -5,3 +5,11 @@ databaseChangeLog:
       file: db/changelog/002_create_product.xml
   - include:
       file: db/changelog/003_insert_data.xml
+  - include:
+      file: db/changelog/004_сhanges_table_product.xml
+  - include:
+      file: db/changelog/005_create_table_customer.xml
+  - include:
+      file: db/changelog/006-create_table_order.xml
+  - include:
+      file: db/changelog/007_create_table_ordered_products.xml

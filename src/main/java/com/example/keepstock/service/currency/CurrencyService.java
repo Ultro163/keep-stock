@@ -1,4 +1,4 @@
-package com.example.keepstock.service;
+package com.example.keepstock.service.currency;
 
 import com.example.keepstock.model.Currency;
 
