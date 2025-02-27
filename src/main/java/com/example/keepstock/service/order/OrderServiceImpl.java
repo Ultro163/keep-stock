@@ -3,6 +3,8 @@ package com.example.keepstock.service.order;
 import com.example.keepstock.dto.mappers.OrderMapper;
 import com.example.keepstock.dto.order.OrderDto;
 import com.example.keepstock.entity.Order;
+import com.example.keepstock.entity.OrderedProduct;
+import com.example.keepstock.entity.OrderedProductKey;
 import com.example.keepstock.entity.Product;
 import com.example.keepstock.error.exception.InsufficientStockException;
 import com.example.keepstock.error.exception.ValidationException;
@@ -13,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,12 +31,15 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Override
+    @Transactional
     public OrderDto save(OrderDto dto) {
         Order order = orderMapper.toEntity(dto);
 
         List<UUID> productIds = order.getProducts().stream().map(Product::getId).toList();
         Map<UUID, Product> products = productRepository.findAllById(productIds)
                 .stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+        Set<OrderedProduct> orderedProducts = new HashSet<>();
 
 
         for (Product product : order.getProducts()) {
@@ -43,8 +50,15 @@ public class OrderServiceImpl implements OrderService {
             if (origProduct.getQuantity() < product.getQuantity()) {
                 throw new InsufficientStockException("Not enough product in stock: " + product.getName());
             }
+            OrderedProduct orderedProduct = new OrderedProduct();
+            orderedProduct.setId(new OrderedProductKey());
+            orderedProduct.setProduct(origProduct);
+            orderedProduct.setPriceAtOrderTime(origProduct.getPrice());
+            orderedProduct.setQuantity(product.getQuantity());
+            orderedProduct.setOrder(order);
+            orderedProducts.add(orderedProduct);
         }
-
+        order.setOrderedProducts(orderedProducts);
         order.setStatus(OrderStatus.CREATED);
         Order saveOrder = orderRepository.save(order);
         return orderMapper.toOrderDto(saveOrder);
