@@ -1,6 +1,5 @@
 package com.example.keepstock.error.controller;
 
-
 import com.example.keepstock.error.exception.EntityNotFoundException;
 import com.example.keepstock.error.exception.ValidationException;
 import com.example.keepstock.error.model.ApiError;

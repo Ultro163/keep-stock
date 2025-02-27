@@ -49,7 +49,7 @@ public class OrderController {
         return orderMapper.toUpdateOrderDto(orderService.update(dto));
     }
 
-    @GetMapping("/{orderId}")
+    @GetMapping("/admin/order/{orderId}")
     public ResponseOrderDto getById(@PathVariable UUID orderId) {
         return orderMapper.toResponseOrderDto(orderService.getById(orderId));
     }

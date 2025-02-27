@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -23,4 +24,5 @@ public class OrderDto {
     private OrderStatus status;
     private String deliveryAddress;
     private Set<ProductDto> products = new HashSet<>();
+    private BigDecimal totalPrice;
 }

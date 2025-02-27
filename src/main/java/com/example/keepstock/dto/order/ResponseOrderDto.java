@@ -19,5 +19,4 @@ public class ResponseOrderDto {
     private UUID id;
     private Set<OrderProductResponse> products;
     private BigDecimal totalPrice;
-
 }
