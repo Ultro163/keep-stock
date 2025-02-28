@@ -11,25 +11,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
-    @Around("execution(* com.example.keepstock.service.*.*ServiceImpl.*(..))")
-    public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
-        String operation = defineOperation(joinPoint.getSignature().getName());
-        String serviceName = joinPoint.getTarget().getClass().getSimpleName();
+    @Around("execution(* com.example.keepstock.service.order.*.*(..))")
+    public Object logOrderService(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecution(joinPoint, "OrderService");
+    }
 
-        log.info("{} началось в сервисе {}. Аргументы: {}",
-                operation, serviceName, joinPoint.getArgs());
+    @Around("execution(* com.example.keepstock.service.category.*.*(..))")
+    public Object logCustomerService(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecution(joinPoint, "CategoryService");
+    }
+
+    @Around("execution(* com.example.keepstock.service.product.*.*(..))")
+    public Object logProductService(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecution(joinPoint, "ProductService");
+    }
+
+    private Object logExecution(ProceedingJoinPoint joinPoint, String serviceName) throws Throwable {
+        String operation = defineOperation(joinPoint.getSignature().getName());
+        log.info("[{}] {} началось. Аргументы: {}", serviceName, operation, joinPoint.getArgs());
 
         try {
             Object result = joinPoint.proceed();
-            log.info("{} успешно завершено в сервисе {}. Результат: {}",
-                    operation, serviceName, result);
+            log.info("[{}] {} успешно завершено. Результат: {}", serviceName, operation, result);
             return result;
         } catch (Exception ex) {
-            log.error("Ошибка при {} в сервисе {}. Исключение: {}",
-                    operation, serviceName, ex.getMessage(), ex);
+            log.error("[{}] Ошибка при {}. Исключение: {}", serviceName, operation, ex.getMessage(), ex);
             throw ex;
         }
     }
+
 
     private String defineOperation(String methodName) {
         if (methodName.startsWith("save")) return "Сохранение";
