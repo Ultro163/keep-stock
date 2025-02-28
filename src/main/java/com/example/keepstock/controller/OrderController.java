@@ -1,16 +1,14 @@
 package com.example.keepstock.controller;
 
-import com.example.keepstock.dto.customer.CustomerDto;
 import com.example.keepstock.dto.mappers.OrderMapper;
-import com.example.keepstock.dto.order.NewOrderDto;
 import com.example.keepstock.dto.order.NewOrderRequest;
-import com.example.keepstock.dto.order.OrderDto;
 import com.example.keepstock.dto.order.ResponseOrderDto;
-import com.example.keepstock.dto.order.UpdateOrderDto;
 import com.example.keepstock.dto.order.UpdateOrderRequest;
+import com.example.keepstock.model.OrderStatus;
 import com.example.keepstock.service.order.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,32 +28,36 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     @PostMapping
-    public NewOrderDto newOrder(@RequestBody @Valid NewOrderRequest newOrderRequest, @RequestHeader Long customerId) {
-        OrderDto dto = orderMapper.toOrderDtoFromNewOrderRequest(newOrderRequest);
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setId(customerId);
-        dto.setCustomer(customerDto);
-        return orderMapper.toNewOrderDto(orderService.save(dto));
+    public UUID newOrder(@RequestBody @Valid NewOrderRequest newOrderRequest, @RequestHeader Long customerId) {
+        return orderService.addOrder(customerId, newOrderRequest.getDeliveryAddress(), newOrderRequest.getProducts());
     }
 
     @PatchMapping("/{orderId}")
-    public UpdateOrderDto updateOrder(@RequestBody @Valid UpdateOrderRequest updateOrderRequest,
-                                      @PathVariable UUID orderId, @RequestHeader Long customerId) {
-        OrderDto dto = orderMapper.toOrderDtoFromUpdateOrderRequest(updateOrderRequest);
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setId(customerId);
-        dto.setCustomer(customerDto);
-        dto.setId(orderId);
-        return orderMapper.toUpdateOrderDto(orderService.update(dto));
+    public UUID updateOrder(@RequestBody @Valid UpdateOrderRequest updateOrderRequest,
+                            @PathVariable UUID orderId, @RequestHeader Long customerId) {
+        return orderService.updateOrder(customerId, orderId,
+                updateOrderRequest.getDeliveryAddress(), updateOrderRequest.getProducts());
     }
 
-    @GetMapping("/admin/order/{orderId}")
-    public ResponseOrderDto getById(@PathVariable UUID orderId) {
-        return orderMapper.toResponseOrderDto(orderService.getById(orderId));
-    }
-
-    @GetMapping("/customer/order/{orderId}")
+    @GetMapping("/{orderId}")
     public ResponseOrderDto getCustomerOrder(@PathVariable UUID orderId, @RequestHeader Long customerId) {
         return orderMapper.toResponseOrderDto(orderService.getCustomerOrder(orderId, customerId));
     }
+
+    @DeleteMapping("/{orderId}")
+    public void deleteOrder(@PathVariable UUID orderId, @RequestHeader Long customerId) {
+        orderService.deleteOrder(customerId, orderId);
+    }
+
+    @PatchMapping("/{orderId}/confirm")
+    public void confirmOrder(@PathVariable UUID orderId, @RequestHeader Long customerId) {
+        orderService.confirmOrder(orderId, customerId);
+    }
+
+    @PatchMapping("/{orderId}/status")
+    public void changeOrderStatus(@PathVariable UUID orderId, @RequestHeader Long customerId,
+                                  @RequestBody OrderStatus orderStatus) {
+        orderService.changeOrderStatus(orderId, customerId, orderStatus);
+    }
+
 }

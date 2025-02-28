@@ -14,7 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,11 +47,7 @@ public class Order {
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
-    @Transient
-    private Set<Product> products = new HashSet<>();
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     private Set<OrderedProduct> orderedProducts = new HashSet<>();
-
 }

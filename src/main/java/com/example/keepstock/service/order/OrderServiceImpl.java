@@ -1,10 +1,10 @@
 package com.example.keepstock.service.order;
 
 import com.example.keepstock.dto.mappers.OrderMapper;
-import com.example.keepstock.dto.mappers.ProductMapper;
 import com.example.keepstock.dto.order.OrderDto;
+import com.example.keepstock.dto.product.OrderProductRequest;
 import com.example.keepstock.dto.product.OrderProductResponse;
-import com.example.keepstock.dto.product.ProductDto;
+import com.example.keepstock.entity.Customer;
 import com.example.keepstock.entity.Order;
 import com.example.keepstock.entity.OrderedProduct;
 import com.example.keepstock.entity.OrderedProductKey;
@@ -26,141 +26,167 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
+    private static final String ORDER_WITH_ID = "Order with id ";
+
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
     private final OrderMapper orderMapper;
-    private final ProductMapper productMapper;
 
     @Override
     @Transactional
-    public OrderDto save(OrderDto dto) {
-        if (!customerRepository.existsById(dto.getCustomer().getId())) {
-            throw new EntityNotFoundException("Customer with id " + dto.getCustomer().getId() + " not already exists");
+    public UUID addOrder(Long customerId, String deliveryAddress, List<OrderProductRequest> productsRequest) {
+        if (!customerRepository.existsById(customerId)) {
+            throw new EntityNotFoundException("Customer with id " + customerId + " not already exists");
         }
-        Order order = orderMapper.toEntity(dto);
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        Order order = new Order();
+        order.setDeliveryAddress(deliveryAddress);
+        order.setCustomer(customer);
+        order.setStatus(OrderStatus.CREATED);
 
-        List<UUID> productIds = order.getProducts().stream().map(Product::getId).toList();
-        Map<UUID, Product> products = productRepository.findAllById(productIds)
+        List<UUID> productsRequestIds = productsRequest.stream().map(OrderProductRequest::getId).toList();
+        Map<UUID, Product> products = productRepository.findAllById(productsRequestIds)
                 .stream().collect(Collectors.toMap(Product::getId, p -> p));
 
 
-        for (ProductDto productDto : dto.getProducts()) {
-            Product product = products.get(productDto.getId());
+        for (OrderProductRequest productRequest : productsRequest) {
+            Product product = products.get(productRequest.getId());
 
-            validateProductAvailability(product, productDto.getQuantity());
+            validateProductAvailability(product, productRequest.getQuantity());
 
-            product.setQuantity(product.getQuantity() - productDto.getQuantity());
+            product.setQuantity(product.getQuantity() - productRequest.getQuantity());
 
             OrderedProduct orderedProduct = new OrderedProduct();
             orderedProduct.setId(new OrderedProductKey(order.getId(), product.getId()));
             orderedProduct.setProduct(product);
             orderedProduct.setOrder(order);
             orderedProduct.setPriceAtOrderTime(product.getPrice());
-            orderedProduct.setQuantity(productDto.getQuantity());
+            orderedProduct.setQuantity(productRequest.getQuantity());
 
             order.getOrderedProducts().add(orderedProduct);
         }
-        order.setStatus(OrderStatus.CREATED);
+
         Order saveOrder = orderRepository.save(order);
-        return orderMapper.toOrderDto(saveOrder);
+        return saveOrder.getId();
     }
 
     @Override
-    public OrderDto update(OrderDto dto) {
-        Order existingOrder = orderRepository.findById(dto.getId())
-                .orElseThrow(() -> orderNotFound(dto.getId()));
+    public UUID updateOrder(Long customerId, UUID orderId, String deliveryAddress, List<OrderProductRequest> productsRequest) {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> orderNotFound(orderId));
 
-        existCustomer(dto.getCustomer().getId(), existingOrder.getCustomer().getId());
+        isCustomerOrderOwner(customerId, existingOrder.getCustomer().getId());
 
         if (existingOrder.getStatus() != OrderStatus.CREATED) {
-            throw new ValidationException("Order with id " + dto.getId() + " is not created");
+            throw new ValidationException(ORDER_WITH_ID + orderId + " is not created");
         }
+        Optional.ofNullable(deliveryAddress)
+                .filter(addr -> !addr.isBlank())
+                .ifPresent(existingOrder::setDeliveryAddress);
 
-        Set<UUID> allProductIds = Stream.concat(
-                dto.getProducts().stream().map(ProductDto::getId),
-                existingOrder.getOrderedProducts().stream().map(op -> op.getProduct().getId())
-        ).collect(Collectors.toSet());
+
+        Set<UUID> allProductIds = new HashSet<>();
+        productsRequest.forEach(req -> allProductIds.add(req.getId()));
+        existingOrder.getOrderedProducts().forEach(op -> allProductIds.add(op.getProduct().getId()));
+
 
         Map<UUID, Product> products = productRepository.findAllById(allProductIds)
                 .stream().collect(Collectors.toMap(Product::getId, p -> p));
 
-        Map<UUID, Long> newOrderProducts = dto.getProducts().stream()
-                .collect(Collectors.toMap(ProductDto::getId, ProductDto::getQuantity, Long::sum));
+        Map<UUID, OrderedProduct> existOrderProducts = existingOrder.getOrderedProducts().stream()
+                .collect(Collectors.toMap(op -> op.getProduct().getId(), op -> op));
 
-        Set<UUID> processedProductIds = new HashSet<>();
-        for (OrderedProduct orderedProduct : existingOrder.getOrderedProducts()) {
-            UUID productId = orderedProduct.getProduct().getId();
-            if (newOrderProducts.containsKey(productId)) {
-                Product product = products.get(productId);
-                long newQuantity = newOrderProducts.get(productId);
-                if (product.getQuantity() < newQuantity) {
-                    throw new InsufficientStockException("Not enough stock for: " + product.getName());
-                }
-                orderedProduct.setQuantity(orderedProduct.getQuantity() + newQuantity);
-                orderedProduct.setPriceAtOrderTime(product.getPrice());
-                product.setQuantity(product.getQuantity() - newQuantity);
-                processedProductIds.add(productId);
-            }
-        }
 
-        for (Map.Entry<UUID, Long> entry : newOrderProducts.entrySet()) {
-            UUID productId = entry.getKey();
-            if (processedProductIds.contains(productId)) continue;
-
+        for (OrderProductRequest orderProductRequest : productsRequest) {
+            UUID productId = orderProductRequest.getId();
             Product product = products.get(productId);
+            validateProductAvailability(product, orderProductRequest.getQuantity());
+            long orderedQuantity = orderProductRequest.getQuantity();
 
-            validateProductAvailability(product, entry.getValue());
+            Optional.ofNullable(existOrderProducts.get(productId))
+                    .ifPresentOrElse(
+                            op -> {
+                                op.setQuantity(op.getQuantity() + orderedQuantity);
+                                op.setPriceAtOrderTime(product.getPrice());
+                            },
+                            () -> {
+                                OrderedProduct orderedProduct = new OrderedProduct();
+                                orderedProduct.setProduct(product);
+                                orderedProduct.setOrder(existingOrder);
+                                orderedProduct.setPriceAtOrderTime(product.getPrice());
+                                orderedProduct.setQuantity(orderedQuantity);
 
-            OrderedProduct orderedProduct = new OrderedProduct();
-            orderedProduct.setId(new OrderedProductKey(existingOrder.getId(), productId));
-            orderedProduct.setProduct(product);
-            orderedProduct.setOrder(existingOrder);
-            orderedProduct.setPriceAtOrderTime(product.getPrice());
-            orderedProduct.setQuantity(entry.getValue());
-
-            product.setQuantity(product.getQuantity() - entry.getValue());
-            existingOrder.getOrderedProducts().add(orderedProduct);
+                                existingOrder.getOrderedProducts().add(orderedProduct);
+                            }
+                    );
+            product.setQuantity(product.getQuantity() - orderedQuantity);
         }
-
-        return orderMapper.toOrderDto(existingOrder);
+        return orderRepository.save(existingOrder).getId();
     }
 
     @Override
-    public void delete(UUID id) {
-        orderRepository.deleteById(id);
+    public void deleteOrder(Long customerId, UUID orderId) {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> orderNotFound(orderId));
+        isCustomerOrderOwner(customerId, existingOrder.getCustomer().getId());
+        if (existingOrder.getStatus() != OrderStatus.CREATED) {
+            throw new ValidationException(ORDER_WITH_ID + orderId + " is not created");
+        }
+        existingOrder.setStatus(OrderStatus.CANCELLED);
+
+        List<UUID> productIds = existingOrder.getOrderedProducts().stream()
+                .map(op -> op.getProduct().getId()).toList();
+
+        Map<UUID, Product> products = productRepository.findAllById(productIds)
+                .stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+        existingOrder.getOrderedProducts().forEach(op -> {
+            Product product = products.get(op.getProduct().getId());
+            product.setQuantity(product.getQuantity() + op.getQuantity());
+        });
     }
 
     @Override
-    public OrderDto getById(UUID id) {
-        Order existingOrder = orderRepository.findById(id)
-                .orElseThrow(() -> orderNotFound(id));
-        return getOrderDto(id, existingOrder);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public OrderDto getCustomerOrder(UUID orderId, Long customerId) {
         Order existingOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> orderNotFound(orderId));
-        existCustomer(existingOrder.getCustomer().getId(), customerId);
+        isCustomerOrderOwner(existingOrder.getCustomer().getId(), customerId);
         return getOrderDto(orderId, existingOrder);
+    }
+
+    @Override
+    public void confirmOrder(UUID orderId, Long customerId) {
+        // TODO: Метод будет реализован позже
+    }
+
+    @Override
+    public void changeOrderStatus(UUID orderId, Long customerId, OrderStatus orderStatus) {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> orderNotFound(orderId));
+        isCustomerOrderOwner(existingOrder.getCustomer().getId(), customerId);
+        if (orderStatus != OrderStatus.CREATED && orderStatus != OrderStatus.CONFIRMED) {
+            throw new ValidationException(ORDER_WITH_ID + orderId + " must be created or confirmed");
+        }
+        existingOrder.setStatus(orderStatus);
     }
 
     private OrderDto getOrderDto(UUID orderId, Order existingOrder) {
         List<OrderProductResponse> products = orderRepository.findOrderProductByOrderId(orderId);
         OrderDto orderDto = orderMapper.toOrderDto(existingOrder);
-        orderDto.setProducts(products.stream()
-                .map(productMapper::toProductDtoFromOrderProductResponse).collect(Collectors.toSet()));
+        orderDto.setProducts(products);
 
         BigDecimal totalPrice = products.stream()
                 .map(p -> p.getPrice().multiply(BigDecimal.valueOf(p.getQuantity())))
@@ -182,13 +208,13 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    private void existCustomer(long customerId, long existingCustomerId) {
+    private void isCustomerOrderOwner(long customerId, long existingCustomerId) {
         if (customerId != existingCustomerId) {
             throw new AccessDeniedException("Customer with id " + customerId + " can't change this order");
         }
     }
 
     private EntityNotFoundException orderNotFound(UUID orderId) {
-        return new EntityNotFoundException("Order with id " + orderId + " not exists");
+        return new EntityNotFoundException(ORDER_WITH_ID + orderId + " not exists");
     }
 }

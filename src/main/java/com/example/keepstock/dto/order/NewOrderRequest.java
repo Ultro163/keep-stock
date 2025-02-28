@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * DTO for {@link OrderDto}
@@ -19,5 +19,5 @@ public class NewOrderRequest {
     @NotBlank
     private String deliveryAddress;
     @NotNull
-    private Set<OrderProductRequest> products;
+    private List<OrderProductRequest> products;
 }

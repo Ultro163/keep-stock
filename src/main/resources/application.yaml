@@ -16,7 +16,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         jdbc.time_zone: UTC
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
@@ -41,6 +41,7 @@ app:
 logging:
   level:
     com.example: info
+    org.hibernate.SQL: error
     org:
       springframework:
         orm.jpa: error

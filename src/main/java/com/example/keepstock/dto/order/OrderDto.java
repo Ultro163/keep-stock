@@ -1,15 +1,15 @@
 package com.example.keepstock.dto.order;
 
 import com.example.keepstock.dto.customer.CustomerDto;
-import com.example.keepstock.dto.product.ProductDto;
+import com.example.keepstock.dto.product.OrderProductResponse;
 import com.example.keepstock.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,6 +23,6 @@ public class OrderDto {
     private CustomerDto customer;
     private OrderStatus status;
     private String deliveryAddress;
-    private Set<ProductDto> products = new HashSet<>();
+    private List<OrderProductResponse> products = new ArrayList<>();
     private BigDecimal totalPrice;
 }
