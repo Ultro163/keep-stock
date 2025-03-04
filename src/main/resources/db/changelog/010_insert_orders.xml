@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="10.1" author="ultro163">
+        <sql>
+            CREATE OR REPLACE FUNCTION create_orders()
+        RETURNS void AS '
+        DECLARE
+            order_id UUID;
+            customer_id BIGINT;
+            product_id UUID;
+            product_count INT;
+            price_at_order_time NUMERIC;
+        BEGIN
+            FOR i IN 1..10 LOOP
+                order_id := gen_random_uuid();
+                customer_id := i;
+
+                INSERT INTO orders (id, customer_id, status, delivery_address)
+                VALUES (order_id, customer_id, ''CREATED'', ''Address '' || i);
+
+                product_count := floor(random() * 9 + 2)::INT;
+
+                FOR j IN 1..product_count LOOP
+                    SELECT id INTO product_id FROM product ORDER BY random() LIMIT 1;
+
+                    price_at_order_time := round((random() * (2000 - 1000) + 1000)::NUMERIC, 2);
+
+                    INSERT INTO ordered_products (order_id, product_id, price_at_order_time, quantity)
+                    VALUES (order_id, product_id, price_at_order_time, floor(random() * (300 - 100 + 1) + 100)::INT);
+                END LOOP;
+            END LOOP;
+        END;'
+        LANGUAGE plpgsql;
+        </sql>
+    </changeSet>
+
+    <changeSet id="10.2" author="ultro163">
+        <sql>
+            SELECT create_orders();
+        </sql>
+    </changeSet>
+
+
+
+
+</databaseChangeLog>

@@ -14,4 +14,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/007_create_table_ordered_products.xml
   - include:
-      file: db/changelog/008_insert_customer.xml
+      file: db/changelog/008_insert_admin.xml
+  - include:
+      file: db/changelog/009_insert_customers.xml
+  - include:
+      file: db/changelog/010_insert_orders.xml
