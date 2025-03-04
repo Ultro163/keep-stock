@@ -25,7 +25,7 @@ public class CurrencyFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        if (path.startsWith("/products")) {
+        if (path.startsWith("/api/v1/products")) {
             String currencyHeader = request.getHeader("currency");
             if (currencyHeader != null) {
                 currencyProvider.setCurrency(currencyHeader);

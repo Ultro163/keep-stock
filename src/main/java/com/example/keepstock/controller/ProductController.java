@@ -9,7 +9,7 @@ import com.example.keepstock.dto.product.ProductResponseDto;
 import com.example.keepstock.dto.product.UpdateProductDto;
 import com.example.keepstock.dto.product.UpdateProductRequest;
 import com.example.keepstock.dto.product.criteria.FilterCriteriaDto;
-import com.example.keepstock.service.ProductService;
+import com.example.keepstock.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
