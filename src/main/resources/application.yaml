@@ -35,6 +35,14 @@ app:
     host: http://localhost:9090
     methods:
       get-actual-rate: /api/v1/exchange-rates
+  account-service:
+    host: http://localhost:9191
+    methods:
+      get-accounts: /api/v1/account
+  crm-service:
+    host: http://localhost:9292
+    methods:
+      get-customer-inns: /api/v1/account/inns
   currency-service:
     model: work
 

@@ -2,6 +2,7 @@ package com.example.keepstock.controller;
 
 import com.example.keepstock.dto.mappers.OrderMapper;
 import com.example.keepstock.dto.order.NewOrderRequest;
+import com.example.keepstock.dto.order.OrderInfo;
 import com.example.keepstock.dto.order.ResponseOrderDto;
 import com.example.keepstock.dto.order.UpdateOrderRequest;
 import com.example.keepstock.model.OrderStatus;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -58,6 +61,11 @@ public class OrderController {
     public void changeOrderStatus(@PathVariable UUID orderId, @RequestHeader Long customerId,
                                   @RequestBody OrderStatus orderStatus) {
         orderService.changeOrderStatus(orderId, customerId, orderStatus);
+    }
+
+    @GetMapping("/info")
+    public Map<UUID, List<OrderInfo>> getProductOrdersWithClients() {
+        return orderService.getProductOrdersWithClients();
     }
 
 }

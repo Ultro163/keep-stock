@@ -13,3 +13,21 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+
+  account-service:
+    image: account-service
+    container_name: account-service
+    ports:
+      - "9191:9191"
+
+  crm-service:
+    image: crm-service
+    container_name: crm-service
+    ports:
+      - "9292:9292"
+
+  exchangerate-service:
+    image: exchangerate-service
+    container_name: exchangerate-service
+    ports:
+      - "9090:9090"

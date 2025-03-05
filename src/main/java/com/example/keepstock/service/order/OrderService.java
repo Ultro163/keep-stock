@@ -1,10 +1,12 @@
 package com.example.keepstock.service.order;
 
 import com.example.keepstock.dto.order.OrderDto;
+import com.example.keepstock.dto.order.OrderInfo;
 import com.example.keepstock.dto.product.OrderProductRequest;
 import com.example.keepstock.model.OrderStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface OrderService {
@@ -21,4 +23,6 @@ public interface OrderService {
 
     void changeOrderStatus(UUID orderId, Long customerId,
                            OrderStatus orderStatus);
+
+    Map<UUID, List<OrderInfo>> getProductOrdersWithClients();
 }

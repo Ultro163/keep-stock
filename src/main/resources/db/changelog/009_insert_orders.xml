@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="10.1" author="ultro163">
+    <changeSet id="9" author="ultro163">
         <sql>
             CREATE OR REPLACE FUNCTION create_orders()
         RETURNS void AS '
@@ -14,10 +14,16 @@
             product_id UUID;
             product_count INT;
             price_at_order_time NUMERIC;
+            product_ids UUID[];
+            used_products UUID[];
         BEGIN
+            SELECT array_agg(id) INTO product_ids FROM (
+                SELECT id FROM product ORDER BY random() LIMIT 20
+            ) AS subquery;
             FOR i IN 1..10 LOOP
                 order_id := gen_random_uuid();
                 customer_id := i;
+                used_products := ARRAY[]::UUID[];
 
                 INSERT INTO orders (id, customer_id, status, delivery_address)
                 VALUES (order_id, customer_id, ''CREATED'', ''Address '' || i);
@@ -25,8 +31,13 @@
                 product_count := floor(random() * 9 + 2)::INT;
 
                 FOR j IN 1..product_count LOOP
-                    SELECT id INTO product_id FROM product ORDER BY random() LIMIT 1;
+                    LOOP
+                        product_id := product_ids[floor(random() * array_length(product_ids, 1) + 1)::INT];
 
+                        EXIT WHEN NOT product_id = ANY(used_products);
+                    END LOOP;
+
+                    used_products := array_append(used_products, product_id);
                     price_at_order_time := round((random() * (2000 - 1000) + 1000)::NUMERIC, 2);
 
                     INSERT INTO ordered_products (order_id, product_id, price_at_order_time, quantity)
