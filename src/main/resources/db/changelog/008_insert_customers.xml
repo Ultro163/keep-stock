@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
+
+    <changeSet id="9.1" author="ultro163">
+        <sql>
+            INSERT INTO customer (login, email, is_active)
+            SELECT 'user' || i, 'user' || i || '@example.com', true
+            FROM generate_series(1, 100) AS i;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

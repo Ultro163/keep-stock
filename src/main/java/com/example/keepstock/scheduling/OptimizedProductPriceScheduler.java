@@ -39,7 +39,7 @@ public class OptimizedProductPriceScheduler {
     private final ProductRepository productRepository;
 
     private static final String LOG_FILE_PATH = "result_updated_prices.log";
-    private static final String LOCK_QUERY = "LOCK TABLE products IN ACCESS EXCLUSIVE MODE";
+    private static final String LOCK_QUERY = "LOCK TABLE product IN ACCESS EXCLUSIVE MODE";
 
     @PersistenceContext
     private EntityManager entityManager;

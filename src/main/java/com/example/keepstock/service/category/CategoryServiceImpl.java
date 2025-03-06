@@ -1,4 +1,4 @@
-package com.example.keepstock.service;
+package com.example.keepstock.service.category;
 
 import com.example.keepstock.dto.category.CategoryDto;
 import com.example.keepstock.dto.mappers.CategoryMapper;

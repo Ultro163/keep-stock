@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: keep-stock
   profiles:
@@ -9,12 +11,12 @@ spring:
     password: ${DB-PASSWORD}
     url: jdbc:postgresql://localhost:5433/stock-db
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         jdbc.time_zone: UTC
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
@@ -33,12 +35,21 @@ app:
     host: http://localhost:9090
     methods:
       get-actual-rate: /api/v1/exchange-rates
+  account-service:
+    host: http://localhost:9191
+    methods:
+      get-accounts: /api/v1/account
+  crm-service:
+    host: http://localhost:9292
+    methods:
+      get-customer-inns: /api/v1/account/inns
   currency-service:
     model: work
 
 logging:
   level:
     com.example: info
+    org.hibernate.SQL: error
     org:
       springframework:
         orm.jpa: error

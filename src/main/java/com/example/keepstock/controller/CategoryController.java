@@ -7,7 +7,7 @@ import com.example.keepstock.dto.category.NewCategoryRequest;
 import com.example.keepstock.dto.category.UpdateCategoryDto;
 import com.example.keepstock.dto.category.UpdateCategoryRequest;
 import com.example.keepstock.dto.mappers.CategoryMapper;
-import com.example.keepstock.service.CategoryService;
+import com.example.keepstock.service.category.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

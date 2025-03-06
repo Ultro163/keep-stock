@@ -1,6 +1,6 @@
 package com.example.keepstock.error.controller;
 
-
+import com.example.keepstock.error.exception.AccessDeniedException;
 import com.example.keepstock.error.exception.EntityNotFoundException;
 import com.example.keepstock.error.exception.ValidationException;
 import com.example.keepstock.error.model.ApiError;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

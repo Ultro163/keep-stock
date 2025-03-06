@@ -1,4 +1,4 @@
-package com.example.keepstock.service;
+package com.example.keepstock.service.product;
 
 import com.example.keepstock.common.CurrencyProvider;
 import com.example.keepstock.dto.mappers.ProductMapper;
@@ -9,6 +9,7 @@ import com.example.keepstock.entity.Product;
 import com.example.keepstock.error.exception.EntityNotFoundException;
 import com.example.keepstock.model.Currency;
 import com.example.keepstock.repository.ProductRepository;
+import com.example.keepstock.service.currency.CurrencyService;
 import com.example.keepstock.service.search.ProductSpecification;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalStateException("Продукт с артикулом " + entity.getArticle() + " уже существует");
         }
         Product product = productMapper.toEntity(entity);
+        if (product.getQuantity() != 0) {
+            product.setIsAvailable(true);
+        }
         productRepository.save(product);
         productRepository.flush();
         return productMapper.toProductDto(product);
@@ -64,6 +68,9 @@ public class ProductServiceImpl implements ProductService {
         if (dto.getQuantity() != null) {
             product.setQuantity(dto.getQuantity());
             product.setLastQuantityUpdate(OffsetDateTime.now());
+            if (product.getQuantity() != 0) {
+                product.setIsAvailable(true);
+            }
         }
         return productMapper.toProductDto(product);
     }

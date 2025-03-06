@@ -15,12 +15,10 @@ import reactor.core.publisher.Mono;
 public class ExchangeRateClient {
 
     private final WebClient webClient;
-    @Value("${app.exchange-rate.host}")
-    private String host;
     @Value("${app.exchange-rate.methods.get-actual-rate}")
     private String getActualRateUri;
 
-    public ExchangeRateClient(WebClient.Builder webClientBuilder) {
+    public ExchangeRateClient(WebClient.Builder webClientBuilder, @Value("${app.exchange-rate.host}") String host) {
         this.webClient = webClientBuilder.baseUrl(host).build();
     }
 
