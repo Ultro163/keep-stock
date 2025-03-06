@@ -1,7 +1,11 @@
 package com.example.keepstock.service.order;
 
+import com.example.keepstock.client.AccountServiceClient;
+import com.example.keepstock.client.CrmServiceClient;
+import com.example.keepstock.dto.customer.CustomerInfo;
 import com.example.keepstock.dto.mappers.OrderMapper;
 import com.example.keepstock.dto.order.OrderDto;
+import com.example.keepstock.dto.order.OrderInfo;
 import com.example.keepstock.dto.product.OrderProductRequest;
 import com.example.keepstock.dto.product.OrderProductResponse;
 import com.example.keepstock.entity.Customer;
@@ -23,12 +27,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
+    private final CrmServiceClient crmServiceClient;
+    private final AccountServiceClient accountServiceClient;
     private final OrderMapper orderMapper;
 
     @Override
@@ -181,6 +190,64 @@ public class OrderServiceImpl implements OrderService {
             throw new ValidationException(ORDER_WITH_ID + orderId + " must be created or confirmed");
         }
         existingOrder.setStatus(orderStatus);
+    }
+
+    @Override
+    public Map<UUID, List<OrderInfo>> getProductOrdersWithClients() {
+        List<Order> existOrders = orderRepository.findAllForOrderProductInfo();
+
+        ConcurrentMap<UUID, List<Order>> productToOrdersMap = existOrders.parallelStream()
+                .flatMap(order -> order.getOrderedProducts().stream()
+                        .map(orderedProduct -> Map.entry(orderedProduct.getProduct().getId(), order)))
+                .collect(Collectors.groupingByConcurrent(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+
+        List<String> customerLogins = existOrders.parallelStream()
+                .map(order -> order.getCustomer().getLogin())
+                .toList();
+
+        CompletableFuture<Map<String, String>> future1 = accountServiceClient.getAccountsAsync(customerLogins);
+        CompletableFuture<Map<String, String>> future2 = crmServiceClient.getCustomerInnsAsync(customerLogins);
+
+        CompletableFuture.allOf(future1, future2).join();
+
+        Map<String, String> customerAccounts = future1.join();
+        Map<String, String> customerInns = future2.join();
+
+        Map<UUID, List<OrderInfo>> resultOrderInfos = new HashMap<>();
+
+        for (Map.Entry<UUID, List<Order>> entry : productToOrdersMap.entrySet()) {
+            UUID productId = entry.getKey();
+            List<OrderInfo> orderInfos = entry.getValue().stream()
+                    .map(order -> {
+                        Customer customer = order.getCustomer();
+                        OrderedProduct orderedProduct = order.getOrderedProducts().stream()
+                                .filter(op -> op.getProduct().getId().equals(productId))
+                                .findFirst()
+                                .orElseThrow();
+
+                        CustomerInfo customerInfo = new CustomerInfo();
+                        customerInfo.setId(customer.getId());
+                        customerInfo.setAccountNumber(customerAccounts.get(customer.getLogin()));
+                        customerInfo.setEmail(customer.getEmail());
+                        customerInfo.setInn(customerInns.get(customer.getLogin()));
+
+                        OrderInfo orderInfo = new OrderInfo();
+                        orderInfo.setCustomer(customerInfo);
+                        orderInfo.setId(order.getId());
+                        orderInfo.setStatus(order.getStatus());
+                        orderInfo.setDeliveryAddress(order.getDeliveryAddress());
+                        orderInfo.setQuantity(orderedProduct.getQuantity());
+
+                        return orderInfo;
+                    })
+                    .toList();
+
+            resultOrderInfos.put(productId, orderInfos);
+        }
+
+        return resultOrderInfos;
+
     }
 
     private OrderDto getOrderDto(UUID orderId, Order existingOrder) {

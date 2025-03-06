@@ -2,6 +2,7 @@ package com.example.keepstock.repository;
 
 import com.example.keepstock.dto.product.OrderProductResponse;
 import com.example.keepstock.entity.Order;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
             where o.id = :id
             """)
     List<OrderProductResponse> findOrderProductByOrderId(@Param("id") UUID id);
+
+    @EntityGraph(attributePaths = {"customer", "orderedProducts"})
+    @Query("""
+            select o
+            from Order o
+            where o.status = 'CREATED'
+            or o.status = 'CONFIRMED'
+            """)
+    List<Order> findAllForOrderProductInfo();
 }
