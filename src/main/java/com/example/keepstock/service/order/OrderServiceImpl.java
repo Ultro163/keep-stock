@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -193,22 +194,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Map<UUID, List<OrderInfo>> getProductOrdersWithClients() {
-        List<Order> existOrders = orderRepository.findAll();
+        List<Order> existOrders = orderRepository.findAllForOrderProductInfo();
 
-        List<String> customerLogins = existOrders.stream()
-                .map(o -> o.getCustomer().getLogin())
+        ConcurrentMap<UUID, List<Order>> productToOrdersMap = existOrders.parallelStream()
+                .flatMap(order -> order.getOrderedProducts().stream()
+                        .map(orderedProduct -> Map.entry(orderedProduct.getProduct().getId(), order)))
+                .collect(Collectors.groupingByConcurrent(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+
+        List<String> customerLogins = existOrders.parallelStream()
+                .map(order -> order.getCustomer().getLogin())
                 .toList();
 
         CompletableFuture<Map<String, String>> future1 = accountServiceClient.getAccountsAsync(customerLogins);
         CompletableFuture<Map<String, String>> future2 = crmServiceClient.getCustomerInnsAsync(customerLogins);
-
-        Map<UUID, List<Order>> productToOrdersMap = existOrders.stream()
-                .flatMap(order -> order.getOrderedProducts().stream()
-                        .map(orderedProduct -> Map.entry(orderedProduct.getProduct().getId(), order)))
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-                ));
 
         CompletableFuture.allOf(future1, future2).join();
 
@@ -218,29 +217,33 @@ public class OrderServiceImpl implements OrderService {
         Map<UUID, List<OrderInfo>> resultOrderInfos = new HashMap<>();
 
         for (Map.Entry<UUID, List<Order>> entry : productToOrdersMap.entrySet()) {
+            UUID productId = entry.getKey();
             List<OrderInfo> orderInfos = entry.getValue().stream()
                     .map(order -> {
-                        OrderInfo orderInfo = new OrderInfo();
+                        Customer customer = order.getCustomer();
+                        OrderedProduct orderedProduct = order.getOrderedProducts().stream()
+                                .filter(op -> op.getProduct().getId().equals(productId))
+                                .findFirst()
+                                .orElseThrow();
+
                         CustomerInfo customerInfo = new CustomerInfo();
+                        customerInfo.setId(customer.getId());
+                        customerInfo.setAccountNumber(customerAccounts.get(customer.getLogin()));
+                        customerInfo.setEmail(customer.getEmail());
+                        customerInfo.setInn(customerInns.get(customer.getLogin()));
 
-                        customerInfo.setId(order.getCustomer().getId());
-                        customerInfo.setAccountNumber(customerAccounts.get(order.getCustomer().getLogin()));
-                        customerInfo.setEmail(order.getCustomer().getEmail());
-                        customerInfo.setInn(customerInns.get(order.getCustomer().getLogin()));
-
+                        OrderInfo orderInfo = new OrderInfo();
                         orderInfo.setCustomer(customerInfo);
                         orderInfo.setId(order.getId());
                         orderInfo.setStatus(order.getStatus());
                         orderInfo.setDeliveryAddress(order.getDeliveryAddress());
-                        orderInfo.setQuantity(order.getOrderedProducts().stream()
-                                .filter(op -> op.getProduct().getId().equals(entry.getKey()))
-                                .map(OrderedProduct::getQuantity).findFirst().orElse(null));
+                        orderInfo.setQuantity(orderedProduct.getQuantity());
 
                         return orderInfo;
                     })
                     .toList();
 
-            resultOrderInfos.put(entry.getKey(), orderInfos);
+            resultOrderInfos.put(productId, orderInfos);
         }
 
         return resultOrderInfos;
