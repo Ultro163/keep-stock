@@ -45,6 +45,12 @@ app:
       get-customer-inns: /api/v1/account/inns
   currency-service:
     model: work
+  kafka:
+    enabled: true
+
+kafka:
+  bootstrapAddress: http://localhost:9092
+  groupId: keep-stock-group
 
 logging:
   level:
