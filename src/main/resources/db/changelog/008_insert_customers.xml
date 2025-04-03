@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
 
-    <changeSet id="9.1" author="ultro163">
+    <changeSet id="8" author="ultro163">
         <sql>
             INSERT INTO customer (login, email, is_active)
             SELECT 'user' || i, 'user' || i || '@example.com', true

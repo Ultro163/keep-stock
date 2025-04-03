@@ -2,6 +2,7 @@ package com.example.keepstock.error.controller;
 
 import com.example.keepstock.error.exception.AccessDeniedException;
 import com.example.keepstock.error.exception.EntityNotFoundException;
+import com.example.keepstock.error.exception.ImageNotFoundException;
 import com.example.keepstock.error.exception.ValidationException;
 import com.example.keepstock.error.model.ApiError;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +86,20 @@ public class ErrorHandler {
                 .errors(errors)
                 .message(e.getMessage())
                 .reason("EntityNotFoundException")
+                .status(HttpStatus.NOT_FOUND.name())
+                .timestamp(OffsetDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleImageNotFound(final ImageNotFoundException e) {
+        log.warn(e.getMessage());
+        List<String> errors = new ArrayList<>();
+        return ApiError.builder()
+                .errors(errors)
+                .message(e.getMessage())
+                .reason("ImageNotFoundException")
                 .status(HttpStatus.NOT_FOUND.name())
                 .timestamp(OffsetDateTime.now())
                 .build();

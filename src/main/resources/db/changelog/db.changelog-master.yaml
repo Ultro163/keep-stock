@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/008_insert_customers.xml
   - include:
       file: db/changelog/009_insert_orders.xml
+  - include:
+      file: db/changelog/010_create_products_images_table.xml

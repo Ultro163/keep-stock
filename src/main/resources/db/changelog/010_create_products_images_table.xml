@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="10" author="ultro163">
+        <createTable tableName="products_images">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="products_images"
+                                 baseColumnNames="product_id"
+                                 constraintName="fk_products_image"
+                                 referencedTableName="product"
+                                 referencedColumnNames="id"/>
+
+        <addUniqueConstraint tableName="products_images"
+                             columnNames="product_id, image_name"
+                             constraintName="unique_product_image"/>
+
+    </changeSet>
+</databaseChangeLog>
