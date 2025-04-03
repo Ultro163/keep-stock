@@ -7,8 +7,8 @@ spring:
     active: default
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: ${DB-LOGIN}
-    password: ${DB-PASSWORD}
+    username: ${DB_LOGIN}
+    password: ${DB_PASSWORD}
     url: jdbc:postgresql://localhost:5433/stock-db
   jpa:
     show-sql: true
@@ -22,6 +22,12 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+
+s3:
+  endpoint: http://localhost:9000
+  access-key: ${MINIO_ROOT_USER}
+  secret-key: ${MINIO_ROOT_PASSWORD}
+  bucket: product-bucket
 
 app:
   scheduling:
@@ -45,6 +51,12 @@ app:
       get-customer-inns: /api/v1/account/inns
   currency-service:
     model: work
+  kafka:
+    enabled: true
+
+kafka:
+  bootstrapAddress: http://localhost:9092
+  groupId: keep-stock-group
 
 logging:
   level:

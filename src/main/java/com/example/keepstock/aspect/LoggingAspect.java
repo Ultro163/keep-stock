@@ -26,20 +26,24 @@ public class LoggingAspect {
         return logExecution(joinPoint, "ProductService");
     }
 
+    @Around("execution(* com.example.keepstock.service.image.*.*(..))")
+    public Object logProductImageService(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecution(joinPoint, "ProductImageService");
+    }
+
     private Object logExecution(ProceedingJoinPoint joinPoint, String serviceName) throws Throwable {
         String operation = defineOperation(joinPoint.getSignature().getName());
         log.info("[{}] {} началось. Аргументы: {}", serviceName, operation, joinPoint.getArgs());
 
         try {
             Object result = joinPoint.proceed();
-            log.info("[{}] {} успешно завершено. Результат: {}", serviceName, operation, result);
+            log.info("[{}] {} успешно завершено. Результат: {}", serviceName, operation, result.toString());
             return result;
         } catch (Exception ex) {
             log.error("[{}] Ошибка при {}. Исключение: {}", serviceName, operation, ex.getMessage(), ex);
             throw ex;
         }
     }
-
 
     private String defineOperation(String methodName) {
         if (methodName.startsWith("save")) return "Сохранение";
