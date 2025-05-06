@@ -37,8 +37,12 @@ public class LoggingAspect {
 
         try {
             Object result = joinPoint.proceed();
-            log.info("[{}] {} успешно завершено. Результат: {}", serviceName, operation, result.toString());
-            return result;
+            if (result != null) {
+                log.info("[{}] {} успешно завершено. Результат: {}", serviceName, operation, result);
+                return result;
+            }
+            log.info("[{}] {} успешно завершено", serviceName, operation);
+            return null;
         } catch (Exception ex) {
             log.error("[{}] Ошибка при {}. Исключение: {}", serviceName, operation, ex.getMessage(), ex);
             throw ex;

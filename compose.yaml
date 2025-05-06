@@ -14,6 +14,35 @@ services:
       interval: 5s
       retries: 10
 
+  keep-stock:
+    image: keep-stock
+    build: .
+    container_name: keep-stock
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock-db:5432/stock-db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=test
+      - S3_SECRET_KEY=testtest
+      - APP_EXCHANGE_RATE_FILE=exchange-rate.json
+      - APP_EXCHANGE_RATE_HOST=http://exchange-rates:9393
+      - APP_ACCOUNT_SERVICE_HOST=http://account-service:9191
+      - APP_CRM_SERVICE_HOST=http://crm-service:9292
+      - KAFKA_BOOTSTRAP_ADDRESS=kafka:9092
+      - ZIPKIN_TRACING_ENDPOINT=http://tempo:9411/api/v2/spans
+      - ZIPKIN_TRACING_EXPORT=true
+    depends_on:
+      - postgres
+      - minio
+      - crm-service
+      - account-service
+      - exchangerates-service
+      - kafka
+      - zookeeper
+
   account-service:
     image: ultro163/account-service:latest
     container_name: account-service
@@ -26,11 +55,11 @@ services:
     ports:
       - "9292:9292"
 
-  exchangerate-service:
-    image: ultro163/exchangerate-service:latest
-    container_name: exchangerate-service
+  exchangerates-service:
+    image: ultro163/exchange-rates:latest
+    container_name: exchange-rates
     ports:
-      - "9090:9090"
+      - "9393:9393"
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -48,11 +77,14 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "9093:9093"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     healthcheck:
       test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server kafka:9092 --list" ]
@@ -67,8 +99,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -80,10 +112,63 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      mc alias set myminio http://minio:9000 ${S3_ACCESS_KEY} ${S3_SECRET_KEY};
       mc mb myminio/product-bucket;
       mc policy set public myminio/product-bucket;
       exit 0;"
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - TZ=${SYSTEM_TIMEZONE:-Europe/Samara}
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+
+  loki:
+    hostname: loki
+    image: grafana/loki:latest
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Samara}
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./loki:/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  tempo:
+    image: grafana/tempo:latest
+    ports:
+      - "3200:3200"
+      - "9411:9411"
+    volumes:
+      - ./config/tempo-config.yaml:/etc/tempo.yaml
+    command: -config.file=/etc/tempo.yaml
 
 volumes:
   minio_data:

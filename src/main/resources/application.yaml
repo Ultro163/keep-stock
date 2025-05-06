@@ -24,9 +24,9 @@ spring:
     enabled: true
 
 s3:
-  endpoint: http://localhost:9000
-  access-key: ${MINIO_ROOT_USER}
-  secret-key: ${MINIO_ROOT_PASSWORD}
+  endpoint: ${S3_ENDPOINT}
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
   bucket: product-bucket
 
 app:
@@ -36,17 +36,17 @@ app:
     priceIncreasePercentage: 10.1
     exclusiveLock: true
   exchange-rate-file:
-    path: src/main/resources/exchange-rate.json
+    path: ${APP_EXCHANGE_RATE_FILE}
   exchange-rate:
-    host: http://localhost:9090
+    host: ${APP_EXCHANGE_RATE_HOST}
     methods:
       get-actual-rate: /api/v1/exchange-rates
   account-service:
-    host: http://localhost:9191
+    host: ${APP_ACCOUNT_SERVICE_HOST}
     methods:
       get-accounts: /api/v1/account
   crm-service:
-    host: http://localhost:9292
+    host: ${APP_CRM_SERVICE_HOST}
     methods:
       get-customer-inns: /api/v1/account/inns
   currency-service:
@@ -55,7 +55,7 @@ app:
     enabled: true
 
 kafka:
-  bootstrapAddress: http://localhost:9092
+  bootstrapAddress: ${KAFKA_BOOTSTRAP_ADDRESS}
   groupId: keep-stock-group
 
 logging:
@@ -76,3 +76,25 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
+management:
+  endpoints.web.exposure.include: 'prometheus, health'
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_TRACING_ENDPOINT}
+      export:
+        enabled: ${ZIPKIN_TRACING_EXPORT}
+  tracing:
+    sampling:
+      probability: 1.0
+
+server:
+  address: 0.0.0.0

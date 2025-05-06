@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 
 @Slf4j
@@ -49,6 +49,12 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     private ExchangeRate getSaveExchangeRate() throws IOException {
-        return objectMapper.readValue(new File(filePath), ExchangeRate.class);
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath)) {
+            if (inputStream == null) {
+                throw new ExchangeRateException("Exchange rate file not found in resources: " + filePath);
+            }
+            return objectMapper.readValue(inputStream, ExchangeRate.class);
+        }
     }
+
 }
