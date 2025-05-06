@@ -55,7 +55,7 @@ app:
     enabled: true
 
 kafka:
-  bootstrapAddress: http://localhost:9092
+  bootstrapAddress: ${KAFKA_BOOTSTRAP_ADDRESS}
   groupId: keep-stock-group
 
 logging:
@@ -91,7 +91,7 @@ management:
     tracing:
       endpoint: ${ZIPKIN_TRACING_ENDPOINT}
       export:
-        enabled: true
+        enabled: ${ZIPKIN_TRACING_EXPORT}
   tracing:
     sampling:
       probability: 1.0
