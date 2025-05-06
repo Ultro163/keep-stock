@@ -7,6 +7,7 @@ import com.example.keepstock.dto.order.ResponseOrderDto;
 import com.example.keepstock.dto.order.UpdateOrderRequest;
 import com.example.keepstock.model.OrderStatus;
 import com.example.keepstock.service.order.OrderService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,6 +64,7 @@ public class OrderController {
         orderService.changeOrderStatus(orderId, customerId, orderStatus);
     }
 
+    @Timed("Controller method")
     @GetMapping("/info")
     public Map<UUID, List<OrderInfo>> getProductOrdersWithClients() {
         return orderService.getProductOrdersWithClients();

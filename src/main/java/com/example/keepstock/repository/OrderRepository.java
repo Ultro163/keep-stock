@@ -2,6 +2,7 @@ package com.example.keepstock.repository;
 
 import com.example.keepstock.dto.product.OrderProductResponse;
 import com.example.keepstock.entity.Order;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -22,6 +23,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
             """)
     List<OrderProductResponse> findOrderProductByOrderId(@Param("id") UUID id);
 
+    @Timed("Base method")
     @EntityGraph(attributePaths = {"customer", "orderedProducts"})
     @Query("""
             select o
